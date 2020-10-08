@@ -21,7 +21,7 @@ ostype can be windows or linux
 # Example Usage
 you may use the below provider block or create your own
 
-copy below code into a .tf file, edit the variables and csv files as per your requirement and run terraform init, terraform validate and terraform apply
+copy below code into a .tf file, edit the variables, download and edit the csv file as per your requirement and run terraform init, terraform validate and terraform apply
 ```
 
 provider "vsphere" {
