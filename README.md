@@ -27,7 +27,7 @@ copy below code into a .tf file, edit the variables and csv files as per your re
 provider "vsphere" {
   user           = "username"
   password       = "password"
-  vsphere_server = "vspere server ip"
+  vsphere_server = "vsphere server ip"
 
   # If you have a self-signed cert
   allow_unverified_ssl = true
