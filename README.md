@@ -47,7 +47,7 @@ module "vmbuilds" {
   
   localadminpassword  = "localadminpassword"   //for windows boxes
 
-  linuxdomain         = "development.local"
+  linuxdomain         = "linuxdomainname"
 
   vmbuilds = "D:/VmwareTerraform/vmbuilds8/example.csv"   //path of downloaded csv
 
