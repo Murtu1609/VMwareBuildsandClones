@@ -14,7 +14,7 @@ mention 1 or 2 dns servers in dns and/or dns2 column seperated by ,
 
 mention na in nic2 column if you do not require a second nic card
 
-mention same datastore name as sysdatastore, in datadatastore, if vm has only one disk or if same datastore is to be used for remaining disks
+mention na in disksizes, vcpus, corespersocket or memory to use the same values as in the template
 
 ostype can be windows or linux
 
