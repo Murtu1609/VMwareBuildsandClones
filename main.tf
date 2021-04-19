@@ -6,23 +6,41 @@ resource "vsphere_virtual_machine" "vm" {
   name                       = each.value
   resource_pool_id           = data.vsphere_compute_cluster.cluster[local.vm[index(local.vm.*.name,each.key)].cluster].resource_pool_id
   datastore_id               = data.vsphere_datastore.sysdatastore[local.vm[index(local.vm.*.name,each.key)].sysdatastore].id
-  num_cpus                   = local.vm[index(local.vm.*.name,each.key)].vcpus
-  num_cores_per_socket       = local.vm[index(local.vm.*.name,each.key)].corespersocket
-  memory                     = local.vm[index(local.vm.*.name,each.key)].memory * 1024
+  num_cpus                   = local.vm[index(local.vm.*.name,each.key)].vcpus != "na" ? local.vm[index(local.vm.*.name,each.key)].vcpus : data.vsphere_virtual_machine.template[local.vm[index(local.vm.*.name,each.key)].template].num_cpus
+  num_cores_per_socket       = local.vm[index(local.vm.*.name,each.key)].corespersocket != "na" ? local.vm[index(local.vm.*.name,each.key)].corespersocket : data.vsphere_virtual_machine.template[local.vm[index(local.vm.*.name,each.key)].template].num_cores_per_socket
+  memory                     = local.vm[index(local.vm.*.name,each.key)].memory != "na" ?local.vm[index(local.vm.*.name,each.key)].memory * 1024 : data.vsphere_virtual_machine.template[local.vm[index(local.vm.*.name,each.key)].template].memory
   guest_id                   = data.vsphere_virtual_machine.template[local.vm[index(local.vm.*.name,each.key)].template].guest_id
   folder                     = local.vm[index(local.vm.*.name,each.key)].folder
+  scsi_type = data.vsphere_virtual_machine.template[local.vm[index(local.vm.*.name,each.key)].template].scsi_type
+  scsi_bus_sharing = data.vsphere_virtual_machine.template[local.vm[index(local.vm.*.name,each.key)].template].scsi_bus_sharing
+  firmware = data.vsphere_virtual_machine.template[local.vm[index(local.vm.*.name,each.key)].template].firmware
+  alternate_guest_name = data.vsphere_virtual_machine.template[local.vm[index(local.vm.*.name,each.key)].template].alternate_guest_name
   wait_for_guest_net_timeout = 0
 
   dynamic "disk" {
-    for_each = split("-",local.vm[index(local.vm.*.name,each.key)].disksizes)
+     for_each = local.vm[index(local.vm.*.name,each.key)].disksizes != "na"  ?  split("-",local.vm[index(local.vm.*.name,each.key)].disksizes) :[]
     content {
       label            = "disk${disk.key}"
       size             = disk.value
       thin_provisioned = lower(local.vm[index(local.vm.*.name,each.key)].thinprovision)
       unit_number      = disk.key
-      datastore_id     = disk.key == 0 ? data.vsphere_datastore.sysdatastore[local.vm[index(local.vm.*.name,each.key)].sysdatastore].id : data.vsphere_datastore.datadatastore[local.vm[index(local.vm.*.name,each.key)].datadatastore].id
+      datastore_id     = data.vsphere_datastore.sysdatastore[local.vm[index(local.vm.*.name,each.key)].sysdatastore].id
     }
   }
+
+
+  dynamic "disk" {
+    for_each = local.vm[index(local.vm.*.name,each.key)].disksizes == "na" ?  data.vsphere_virtual_machine.template[local.vm[index(local.vm.*.name,each.key)].template].disks : []
+    content {
+      label = disk.value.label 
+      size = disk.value.size 
+      thin_provisioned = lower(local.vm[index(local.vm.*.name,each.key)].thinprovision)
+      unit_number = disk.value.unit_number
+      datastore_id     = data.vsphere_datastore.sysdatastore[local.vm[index(local.vm.*.name,each.key)].sysdatastore].id 
+
+      }
+    }
+  
 
   network_interface {
     network_id = data.vsphere_network.network[local.vm[index(local.vm.*.name,each.key)].network].id
@@ -85,6 +103,7 @@ cdrom {
 
       ipv4_gateway = local.vm[index(local.vm.*.name,each.key)].gateway
       dns_server_list = split(",",local.vm[index(local.vm.*.name,each.key)].dns)
+      dns_suffix_list = [var.linuxdomain]
     }
   }
 }

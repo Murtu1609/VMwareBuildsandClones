@@ -13,11 +13,6 @@ data "vsphere_datastore" "sysdatastore" {
   datacenter_id = data.vsphere_datacenter.dc.id
 }
 
-data "vsphere_datastore" "datadatastore" {
-  for_each      = toset(local.vm.*.datadatastore)
-  name          = each.value
-  datacenter_id = data.vsphere_datacenter.dc.id
-}
 
 data "vsphere_compute_cluster" "cluster" {
   for_each      = toset(local.vm.*.cluster)
