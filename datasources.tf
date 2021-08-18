@@ -8,7 +8,7 @@ locals {
 }
 
 data "vsphere_datastore" "sysdatastore" {
-  for_each      = toset(local.vm.*.datastore)
+  for_each      = toset(local.vm.*.sysdatastore)
   name          = each.value
   datacenter_id = data.vsphere_datacenter.dc.id
 }
